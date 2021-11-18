@@ -1,0 +1,12 @@
+<mapper namespace="user">
+
+  <!-- sql的唯一表示 namespace.id来组成：statementId-->
+  <select id="selectList" resultType="com.mybatis.pojo.User">
+    select * from user
+  </select>
+
+  <!-- -->
+  <select id="selectOne" resultType="com.mybatis.pojo.User" resultType="com.mybatis.pojo.User">
+    select * from user where id = {id} and username =#{username}
+  </select>
+</mapper>
