@@ -32,4 +32,6 @@ public interface SqlSession {
    */
   public <T> T selectOne(String statementId, Object... params) throws IllegalAccessException, IntrospectionException, InstantiationException, NoSuchFieldException, SQLException, InvocationTargetException, ClassNotFoundException;
 
+  public <T> T getMapper(Class<?> mapperClass);
+
 }
