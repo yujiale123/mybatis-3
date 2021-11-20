@@ -15,11 +15,11 @@
  */
 package org.apache.ibatis.cache.impl;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.ibatis.cache.Cache;
 import org.apache.ibatis.cache.CacheException;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Clinton Begin
@@ -29,6 +29,11 @@ public class PerpetualCache implements Cache {
   private final String id;
 
   private final Map<Object, Object> cache = new HashMap<>();
+
+  @Override
+  public void clear() {
+    cache.clear();
+  }
 
   public PerpetualCache(String id) {
     this.id = id;
@@ -59,10 +64,7 @@ public class PerpetualCache implements Cache {
     return cache.remove(key);
   }
 
-  @Override
-  public void clear() {
-    cache.clear();
-  }
+
 
   @Override
   public boolean equals(Object o) {
