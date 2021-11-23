@@ -15,14 +15,6 @@
  */
 package org.apache.ibatis.session.defaults;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.ibatis.binding.BindingException;
 import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.exceptions.ExceptionFactory;
@@ -38,6 +30,14 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The default implementation for {@link SqlSession}.
@@ -130,6 +130,12 @@ public class DefaultSqlSession implements SqlSession {
     }
   }
 
+  /**
+   * 进入selectList方法，有多个重载方法
+   * @param statement Unique identifier matching the statement to use.
+   * @param <E>
+   * @return
+   */
   @Override
   public <E> List<E> selectList(String statement) {
     return this.selectList(statement, null);
@@ -147,7 +153,9 @@ public class DefaultSqlSession implements SqlSession {
 
   private <E> List<E> selectList(String statement, Object parameter, RowBounds rowBounds, ResultHandler handler) {
     try {
+      //根据statement的值获取MappedStatement对象
       MappedStatement ms = configuration.getMappedStatement(statement);
+      //调用执行器执行查询方法
       return executor.query(ms, wrapCollection(parameter), rowBounds, handler);
     } catch (Exception e) {
       throw ExceptionFactory.wrapException("Error querying database.  Cause: " + e, e);

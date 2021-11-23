@@ -15,15 +15,15 @@
  */
 package org.apache.ibatis.session;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-import java.util.Properties;
-
 import org.apache.ibatis.builder.xml.XMLConfigBuilder;
 import org.apache.ibatis.exceptions.ExceptionFactory;
 import org.apache.ibatis.executor.ErrorContext;
 import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.util.Properties;
 
 /**
  * Builds {@link SqlSession} instances.
@@ -60,7 +60,13 @@ public class SqlSessionFactoryBuilder {
     }
   }
 
+  /**
+   * 1、最开始调用build
+   * @param inputStream
+   * @return
+   */
   public SqlSessionFactory build(InputStream inputStream) {
+    //2、调用build的重载方法
     return build(inputStream, null, null);
   }
 
@@ -72,9 +78,19 @@ public class SqlSessionFactoryBuilder {
     return build(inputStream, null, properties);
   }
 
+  /**
+   * 2、调用的重载方法
+   * @param inputStream
+   * @param environment
+   * @param properties
+   * @return
+   */
   public SqlSessionFactory build(InputStream inputStream, String environment, Properties properties) {
     try {
+      //2.1、创建XMLConfigBuilder  、XMLConfigBuilder是专门解析mybatis的配置文件的类
       XMLConfigBuilder parser = new XMLConfigBuilder(inputStream, environment, properties);
+      //2.2、执行XML解析，创建DefaultSqlSessionFactory对象
+      //这⾥⼜调⽤了⼀个重载⽅法。parser.parse()的返回值是 Configuration对象
       return build(parser.parse());
     } catch (Exception e) {
       throw ExceptionFactory.wrapException("Error building SqlSession.", e);
@@ -88,7 +104,13 @@ public class SqlSessionFactoryBuilder {
     }
   }
 
+  /**
+   *创建DefaultSqlSessionFactory对象
+   * @param config Configuration对象
+   * @return DefaultSqlSessionFactory对象
+   */
   public SqlSessionFactory build(Configuration config) {
+    //构建者设计模式
     return new DefaultSqlSessionFactory(config);
   }
 

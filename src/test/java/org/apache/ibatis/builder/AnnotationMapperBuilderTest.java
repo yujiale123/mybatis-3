@@ -15,8 +15,6 @@
  */
 package org.apache.ibatis.builder;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
@@ -26,7 +24,9 @@ import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.ResultSetType;
 import org.apache.ibatis.mapping.StatementType;
 import org.apache.ibatis.session.Configuration;
-import org.junit.jupiter.api.Test;
+import org.testng.annotations.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class AnnotationMapperBuilderTest {
 
