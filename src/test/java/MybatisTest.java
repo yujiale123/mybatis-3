@@ -16,8 +16,7 @@ public class MybatisTest {
   /**
    * 传统方式
    */
-  public void test01() throws Exception{
-
+  public void test01() throws Exception {
     //1、读取配置文件，读取成字节输入流，还没有解析  Mybatis初始化解析
     InputStream resourceAsStream = Resource.getResourceAsStream("sqlMapConfig.xml");
     //2、解析配置文件，把结果封装成Configuration对象，创建DefaultSqlSessionFactory对象
@@ -35,7 +34,15 @@ public class MybatisTest {
   /**
    * 基于mapper代理方式
    */
-  public void test02() throws Exception{
+  public void test02() throws Exception {
+    //1、读取配置文件，读取成字节输入流，还没有解析  Mybatis初始化解析
     InputStream resourceAsStream = Resource.getResourceAsStream("sqlMapConfig.xml");
+    //2、解析配置文件，把结果封装成Configuration对象，创建DefaultSqlSessionFactory对象
+    SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(resourceAsStream);
+    //3、执行SQL流程解析 生产了DefaultSqlSessionFactory对象，设置了事务不自动提交，完成executor对象的创建
+    SqlSession sqlSession = sqlSessionFactory.openSession();
+    //4、使用jdk动态代理来对mapper接口产生代理对象
+    UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+    List<Object> allUser = userMapper.findAllUser();
   }
 }

@@ -818,6 +818,7 @@ public class Configuration {
   }
 
   public void addMappers(String packageName) {
+    //扫描该包下所有的Mapper接口，并添加到mapperRegistry中
     mapperRegistry.addMappers(packageName);
   }
 

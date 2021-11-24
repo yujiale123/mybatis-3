@@ -15,16 +15,12 @@
  */
 package org.apache.ibatis.binding;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.ibatis.builder.annotation.MapperAnnotationBuilder;
 import org.apache.ibatis.io.ResolverUtil;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
+
+import java.util.*;
 
 /**
  * @author Clinton Begin
@@ -33,7 +29,15 @@ import org.apache.ibatis.session.SqlSession;
  */
 public class MapperRegistry {
 
+  /**
+   * Mybatis的Configuration对象
+   */
   private final Configuration config;
+  /**
+   * key：Mapper接口
+   *
+   * 这个类维护一个hashMap存放这MapperProxyFactory
+   */
   private final Map<Class<?>, MapperProxyFactory<?>> knownMappers = new HashMap<>();
 
   public MapperRegistry(Configuration config) {
@@ -42,10 +46,13 @@ public class MapperRegistry {
 
   @SuppressWarnings("unchecked")
   public <T> T getMapper(Class<T> type, SqlSession sqlSession) {
+    //获得MapperProxyFactory对象
     final MapperProxyFactory<T> mapperProxyFactory = (MapperProxyFactory<T>) knownMappers.get(type);
+    //如果不存在，则抛出BindingException异常
     if (mapperProxyFactory == null) {
       throw new BindingException("Type " + type + " is not known to the MapperRegistry.");
     }
+    //通过jdk动态代理工厂生成实例
     try {
       return mapperProxyFactory.newInstance(sqlSession);
     } catch (Exception e) {

@@ -15,13 +15,13 @@
  */
 package org.apache.ibatis.binding;
 
+import org.apache.ibatis.binding.MapperProxy.MapperMethodInvoker;
+import org.apache.ibatis.session.SqlSession;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.apache.ibatis.binding.MapperProxy.MapperMethodInvoker;
-import org.apache.ibatis.session.SqlSession;
 
 /**
  * @author Lasse Voss
@@ -45,11 +45,19 @@ public class MapperProxyFactory<T> {
 
   @SuppressWarnings("unchecked")
   protected T newInstance(MapperProxy<T> mapperProxy) {
+    //调用JDK动态代理
     return (T) Proxy.newProxyInstance(mapperInterface.getClassLoader(), new Class[] { mapperInterface }, mapperProxy);
   }
 
+  /**
+   *MapperProxyFactory中的newInstance方法
+   * @param sqlSession
+   * @return
+   */
   public T newInstance(SqlSession sqlSession) {
+    //创建JDK动态代理invocationHandler接口的实现类MapperProxy
     final MapperProxy<T> mapperProxy = new MapperProxy<>(sqlSession, mapperInterface, methodCache);
+    //调用newInstance重载方法
     return newInstance(mapperProxy);
   }
 
