@@ -25,7 +25,8 @@ public class MybatisTest {
     //2.解析了配置文件，并创建了sqlSessionFactory工厂
     SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(resourceAsStream);
     //3.生产sqlSession
-    SqlSession sqlSession = sqlSessionFactory.openSession();// 默认开启一个事务，但是该事务不会自动提交
+    // 默认开启一个事务，但是该事务不会自动提交
+    SqlSession sqlSession = sqlSessionFactory.openSession();
     //在进行增删改操作时，要手动提交事务
     //4.sqlSession调用方法：查询所有selectList  查询单个：selectOne 添加：insert  修改：update 删除：delete
     List<User> users = sqlSession.selectList("user.findAll");
@@ -41,14 +42,12 @@ public class MybatisTest {
   public void test2() throws IOException {
     InputStream resourceAsStream = Resources.getResourceAsStream("sqlMapConfig.xml");
     SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(resourceAsStream);
-    SqlSession sqlSession = sqlSessionFactory.openSession(true);//事务自动提交
-
+    //设置事务自动提交
+    SqlSession sqlSession = sqlSessionFactory.openSession(true);
     User user = new User();
     user.setId(6);
     user.setUsername("tom");
     sqlSession.insert("user.saveUser", user);
-
-
     sqlSession.close();
   }
 
@@ -57,7 +56,6 @@ public class MybatisTest {
     InputStream resourceAsStream = Resources.getResourceAsStream("sqlMapConfig.xml");
     SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(resourceAsStream);
     SqlSession sqlSession = sqlSessionFactory.openSession();
-
     User user = new User();
     user.setId(4);
     user.setUsername("lucy");
@@ -72,11 +70,8 @@ public class MybatisTest {
     InputStream resourceAsStream = Resources.getResourceAsStream("sqlMapConfig.xml");
     SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(resourceAsStream);
     SqlSession sqlSession = sqlSessionFactory.openSession();
-
-
-    sqlSession.delete("com.lagou.dao.IUserDao.deleteUser", 6);
+    sqlSession.delete("com.mybatis.dao.UserMapper.deleteUser", 6);
     sqlSession.commit();
-
     sqlSession.close();
   }
 
@@ -86,14 +81,11 @@ public class MybatisTest {
     InputStream resourceAsStream = Resources.getResourceAsStream("sqlMapConfig.xml");
     SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(resourceAsStream);
     SqlSession sqlSession = sqlSessionFactory.openSession();
-
     UserMapper mapper = sqlSession.getMapper(UserMapper.class);
     List<User> all = mapper.findAll();
     for (User user : all) {
       System.out.println(user);
     }
-
-
   }
 
   @Test
@@ -101,19 +93,14 @@ public class MybatisTest {
     InputStream resourceAsStream = Resources.getResourceAsStream("sqlMapConfig.xml");
     SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(resourceAsStream);
     SqlSession sqlSession = sqlSessionFactory.openSession();
-
     UserMapper mapper = sqlSession.getMapper(UserMapper.class);
-
     User user1 = new User();
     user1.setId(4);
     user1.setUsername("lucy");
-
     List<User> all = mapper.findByCondition(user1);
     for (User user : all) {
       System.out.println(user);
     }
-
-
   }
 
   @Test
@@ -121,16 +108,11 @@ public class MybatisTest {
     InputStream resourceAsStream = Resources.getResourceAsStream("sqlMapConfig.xml");
     SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(resourceAsStream);
     SqlSession sqlSession = sqlSessionFactory.openSession();
-
     UserMapper mapper = sqlSession.getMapper(UserMapper.class);
-
     int[] arr = {1, 2};
-
     List<User> all = mapper.findByIds(arr);
     for (User user : all) {
       System.out.println(user);
     }
-
   }
-
 }
