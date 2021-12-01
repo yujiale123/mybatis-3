@@ -15,39 +15,21 @@
  */
 package org.apache.ibatis.builder.xml;
 
-import java.io.InputStream;
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import org.apache.ibatis.builder.BaseBuilder;
-import org.apache.ibatis.builder.BuilderException;
-import org.apache.ibatis.builder.CacheRefResolver;
-import org.apache.ibatis.builder.IncompleteElementException;
-import org.apache.ibatis.builder.MapperBuilderAssistant;
-import org.apache.ibatis.builder.ResultMapResolver;
+import org.apache.ibatis.builder.*;
 import org.apache.ibatis.cache.Cache;
 import org.apache.ibatis.executor.ErrorContext;
 import org.apache.ibatis.io.Resources;
-import org.apache.ibatis.mapping.Discriminator;
-import org.apache.ibatis.mapping.ParameterMapping;
-import org.apache.ibatis.mapping.ParameterMode;
-import org.apache.ibatis.mapping.ResultFlag;
-import org.apache.ibatis.mapping.ResultMap;
-import org.apache.ibatis.mapping.ResultMapping;
+import org.apache.ibatis.mapping.*;
 import org.apache.ibatis.parsing.XNode;
 import org.apache.ibatis.parsing.XPathParser;
 import org.apache.ibatis.reflection.MetaClass;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
+
+import java.io.InputStream;
+import java.io.Reader;
+import java.util.*;
 
 /**
  * @author Clinton Begin
@@ -91,14 +73,20 @@ public class XMLMapperBuilder extends BaseBuilder {
   }
 
   public void parse() {
+    //判断当前Mapper是否已经加载过
     if (!configuration.isResourceLoaded(resource)) {
+      //解析< mapper />节点
       configurationElement(parser.evalNode("/mapper"));
+      //标记该mapper已经加载过
       configuration.addLoadedResource(resource);
+      //绑定mapper
       bindMapperForNamespace();
     }
-
+    // 解析待定的 <resultMap />
     parsePendingResultMaps();
+    // 解析待定的 <CacheRef />
     parsePendingCacheRefs();
+    // 解析待定的 SQL语句节点
     parsePendingStatements();
   }
 
@@ -106,18 +94,31 @@ public class XMLMapperBuilder extends BaseBuilder {
     return sqlFragments.get(refid);
   }
 
+  /**
+   * 解析mapper节点
+   * @param context
+   */
   private void configurationElement(XNode context) {
     try {
+      // 获得 namespace 属性
       String namespace = context.getStringAttribute("namespace");
       if (namespace == null || namespace.isEmpty()) {
         throw new BuilderException("Mapper's namespace cannot be empty");
       }
+      // 设置 namespace 属性
       builderAssistant.setCurrentNamespace(namespace);
+      // 解析 <cache-ref /> 节点
       cacheRefElement(context.evalNode("cache-ref"));
+      // 解析 <cache /> 节点
       cacheElement(context.evalNode("cache"));
+      // 已废弃！老式风格的参数映射。内联参数是首选,这个元素可能在将来被移除，这里不会记录。
       parameterMapElement(context.evalNodes("/mapper/parameterMap"));
+      // 解析 <resultMap /> 节点们
       resultMapElements(context.evalNodes("/mapper/resultMap"));
+      // 解析 <sql /> 节点们
       sqlElement(context.evalNodes("/mapper/sql"));
+      // 解析 <select /> <insert /> <update /> <delete /> 节点们
+      // 这里会将生成的Cache包装到对应的MappedStatement
       buildStatementFromContext(context.evalNodes("select|insert|update|delete"));
     } catch (Exception e) {
       throw new BuilderException("Error parsing Mapper XML. The XML location is '" + resource + "'. Cause: " + e, e);
@@ -199,17 +200,29 @@ public class XMLMapperBuilder extends BaseBuilder {
     }
   }
 
+  /**
+   * 解析cache标签
+   * @param context
+   */
   private void cacheElement(XNode context) {
     if (context != null) {
+      //解析<cache/>标签的type属性，这里我们可以自定义cache的实现类，比如redisCache，如果没有自定义，这里使用和一级缓存相同的PERPETUAL
       String type = context.getStringAttribute("type", "PERPETUAL");
       Class<? extends Cache> typeClass = typeAliasRegistry.resolveAlias(type);
+      // 获得负责过期的 Cache 实现类
       String eviction = context.getStringAttribute("eviction", "LRU");
       Class<? extends Cache> evictionClass = typeAliasRegistry.resolveAlias(eviction);
+      // 清空缓存的频率。0 代表不清空
       Long flushInterval = context.getLongAttribute("flushInterval");
+      // 缓存容器大小
       Integer size = context.getIntAttribute("size");
+      // 是否序列化
       boolean readWrite = !context.getBooleanAttribute("readOnly", false);
+      // 是否阻塞
       boolean blocking = context.getBooleanAttribute("blocking", false);
+      // 获得 Properties 属性
       Properties props = context.getChildrenAsProperties();
+      // 创建 Cache 对象
       builderAssistant.useNewCache(typeClass, evictionClass, flushInterval, size, readWrite, blocking, props);
     }
   }
