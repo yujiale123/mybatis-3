@@ -1,4 +1,4 @@
-package com.mybatis.mp.spring_boot_mybatis_plus;
+package com.mybatis.mp;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
